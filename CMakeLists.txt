@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.24)
+project(cppgram)
+find_package(OpenSSL REQUIRED)
+set(CMAKE_CXX_STANDARD 20)
+add_compile_options(-Wall -Wextra -Werror -Wconversion -std=c++20)
+add_executable(cppgram main.cpp Bot.cpp)
+target_link_libraries(cppgram OpenSSL::SSL)

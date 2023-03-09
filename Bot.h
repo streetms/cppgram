@@ -4,25 +4,27 @@
 
 #ifndef CPPGRAM_BOT_H
 #define CPPGRAM_BOT_H
+#include <vector>
 #include <boost/asio/io_service.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
-#include <optional>
-
+#include "Update/Update.h"
 class Bot {
 public:
     Bot (const Bot& bot) = delete;
     bool operator=(const  Bot& bot) = delete;
-    explicit Bot(std::string token);
+    explicit Bot(std::string&& token);
+    explicit Bot(const std::string& token);
     ~Bot();
     void send_message(uint64_t chat_id, std::string_view text);
     void send_message(std::string_view chat_id, std::string_view text);
-    std::optional<boost::property_tree::ptree> getUpdates();
+    std::vector<Update> getUpdates();
 private:
+    Bot();
     boost::beast::http::response<boost::beast::http::string_body> get(std::string_view url);
-    const std::string token;
+    std::string token;
     const char* port;
     boost::asio::io_service service;
     uint64_t last_update_id;

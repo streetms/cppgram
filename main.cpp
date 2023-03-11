@@ -1,18 +1,22 @@
+#include <fstream>
+#include <iostream>
 #include "Bot.h"
+#include "Update/Message/Message.h"
 
 int main() {
-    Bot bot(getenv("BOT_TOKEN"));
+    std::ifstream fin(".bot_token");
+    std::string token;
+    fin >> token;
+    Bot bot(std::move(token));
 
-    auto json = bot.getUpdates();
     while(true) {
-        if (json.has_value()) {
-            for (auto update: json->get_child("result")) {
-                auto chat_id = update.second.get_child("message").get_child("from").get<uint64_t>("id");
-                auto text = update.second.get_child("message").get<std::string>("text");
-                bot.send_message(chat_id, text);
+        auto updates = bot.getUpdates();
+        for (auto& update : updates) {
+            Message m = update.get<Message>();
+            if (m.type == Message::Type::Text) {
+                bot.send_message(m.from.id,m.get<std::string>());
             }
         }
-        json = bot.getUpdates();
     }
 
 }

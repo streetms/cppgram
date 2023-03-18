@@ -21,8 +21,20 @@ Message::Message(const boost::property_tree::ptree &json) {
     try{
         data = json.get<std::string>("text");
         type = Type::Text;
-    } catch (...){
+    } catch (boost::wrapexcept<boost::property_tree::ptree_bad_path>& ex) {
 
     }
-
+    try {
+        child = json.get_child("entities");
+        Entities ent;
+        ent.offset = (*(child.begin())).second.get<uint64_t>("offset");
+        ent.length = (*(child.begin())).second.get<uint64_t>("length");
+        auto t = (*(child.begin())).second.get<std::string>("type");
+        if (t == "bot_command"){
+           ent.type = Entities::Type::bot_command;
+        }
+        entities = ent;
+    } catch (boost::wrapexcept<boost::property_tree::ptree_bad_path>& ex) {
+        entities = {};
+    }
 }

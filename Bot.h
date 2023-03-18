@@ -25,7 +25,6 @@ private:
     Bot();
     boost::beast::http::response<boost::beast::http::string_body> get(std::string_view url);
     std::string token;
-    const char* port;
     boost::asio::io_service service;
     uint64_t last_update_id;
     boost::asio::ssl::context* ctx;

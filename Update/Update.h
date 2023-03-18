@@ -12,7 +12,7 @@ public:
     explicit Update(const boost::property_tree::ptree& tree) : json(tree){
     }
     template <typename T>
-    T get(){
+    T get() {
         std::string type_name = boost::typeindex::type_id<T>().pretty_name();
         type_name[0] = char(std::tolower(type_name[0]));
         return json.get_child(type_name);

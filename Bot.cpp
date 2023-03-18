@@ -80,11 +80,10 @@ Bot::~Bot() {
 
 Bot::Bot() {
     last_update_id = 0;
-    port = "443";
     ctx = new ssl::context(ssl::context::sslv23_client);
     socket = new ssl::stream<ip::tcp::socket>(service,*ctx);
     boost::asio::ip::tcp::resolver resolver(service);
-    auto it = resolver.resolve("api.telegram.org", port);
+    auto it = resolver.resolve("api.telegram.org", "443");
     connect(socket->lowest_layer(), it);
     socket->handshake(ssl::stream_base::handshake_type::client);
 }

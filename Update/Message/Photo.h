@@ -4,5 +4,7 @@
 
 #ifndef CPPGRAM_PHOTO_H
 #define CPPGRAM_PHOTO_H
+struct Photo{
 
+};
 #endif //CPPGRAM_PHOTO_H

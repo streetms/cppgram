@@ -40,7 +40,7 @@ public:
     enum class Type{Text};
     Message(const boost::property_tree::ptree& json);
     template <typename T>
-    T get(){
+    T get() const{
         return std::any_cast<T>(data);
     }
     uint64_t date;

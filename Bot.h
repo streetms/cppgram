@@ -11,6 +11,8 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl.hpp>
 #include "Update/Update.h"
+#include "Update/Message/Message.h"
+
 class Bot {
 public:
     Bot (const Bot& bot) = delete;
@@ -19,7 +21,7 @@ public:
     explicit Bot(const std::string& token);
     ~Bot();
     void send_message(uint64_t chat_id, std::string_view text);
-    void send_message(std::string_view chat_id, std::string_view text);
+    void send_message(uint64_t chat_id,const Message& message);
     std::vector<Update> getUpdates();
 private:
     Bot();

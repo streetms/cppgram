@@ -26,14 +26,9 @@ void Bot::send_message(uint64_t chat_id, std::string_view text) {
     get(request);
 }
 
-void Bot::send_message(std::string_view chat_id, std::string_view text) {
-    char request[1024];
-    sprintf(request,"api.telegram.org/bot%s/sendMessage?chat_id=@%s&text=%s",token.data(),chat_id.data(),text.data());
-    get(request);
-}
-
 std::vector<Update> Bot::getUpdates() {
     char request[1024];
+    std::vector<Update> updates;
     if (last_update_id  == 0) {
         sprintf(request,"api.telegram.org/bot%s/getUpdates",token.data());
     } else {
@@ -45,14 +40,14 @@ std::vector<Update> Bot::getUpdates() {
     read_json(st,json);
     auto children = json.get_child("result");
     if (children.empty()) {
-        return {};
+        return updates;
     }
     if (last_update_id == 0) {
         last_update_id = children.back().second.get<uint64_t>("update_id");
-        return {};
+        return updates;
     }
     last_update_id = children.back().second.get<uint64_t>("update_id");
-    std::vector<Update> updates;
+
     updates.reserve(children.size());
     for (auto& [text,tree] : children){
         updates.emplace_back(tree);
@@ -86,5 +81,14 @@ Bot::Bot() {
     auto it = resolver.resolve("api.telegram.org", "443");
     connect(socket->lowest_layer(), it);
     socket->handshake(ssl::stream_base::handshake_type::client);
+}
+
+
+void Bot::send_message(uint64_t chat_id,const Message& message) {
+    switch (message.type) {
+        case Message::Type::Text:
+            this->send_message(chat_id,message.get<Text>());
+            break;
+    }
 }
 

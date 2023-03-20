@@ -27,9 +27,9 @@ Message::Message(const boost::property_tree::ptree &json) {
     try {
         child = json.get_child("entities");
         Entities ent;
-        ent.offset = (*(child.begin())).second.get<uint64_t>("offset");
-        ent.length = (*(child.begin())).second.get<uint64_t>("length");
-        auto t = (*(child.begin())).second.get<std::string>("type");
+        ent.offset = child.front().second.get<uint64_t>("offset");
+        ent.length = child.front().second.get<uint64_t>("length");
+        auto t = child.front().second.get<std::string>("type");
         if (t == "bot_command"){
            ent.type = Entities::Type::bot_command;
         }

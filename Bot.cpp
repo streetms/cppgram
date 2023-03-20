@@ -20,7 +20,7 @@ Bot::Bot(const std::string&  token) : Bot() {
 Bot::Bot(std::string &&token) : Bot() {
     this->token = std::move(token);
 }
-void Bot::send_message(uint64_t chat_id, std::string_view text) {
+void Bot::send_text(uint64_t chat_id, std::string_view text) {
     char request[1024];
     sprintf(request,"api.telegram.org/bot%s/sendMessage?chat_id=%lu&text=%s",token.data(),chat_id,text.data());
     get(request);
@@ -83,12 +83,20 @@ Bot::Bot() {
     socket->handshake(ssl::stream_base::handshake_type::client);
 }
 
-
 void Bot::send_message(uint64_t chat_id,const Message& message) {
     switch (message.type) {
         case Message::Type::Text:
-            this->send_message(chat_id,message.get<Text>());
+            this->send_text(chat_id,message.get<Text>());
+            break;
+        case Message::Type::Photo:
+            this->send_photo(chat_id,message.get<Photo>());
             break;
     }
+}
+
+void Bot::send_photo(uint64_t chat_id, const Photo &photo) {
+    char request[1024];
+    sprintf(request,"api.telegram.org/bot%s/sendPhoto?chat_id=%lu&photo=%s",token.data(),chat_id,photo.file_id.data());
+    get(request);
 }
 

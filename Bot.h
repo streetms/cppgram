@@ -12,6 +12,7 @@
 #include <boost/asio/ssl.hpp>
 #include "Update/Update.h"
 #include "Update/Message/Message.h"
+#include "Update/Message/Photo.h"
 
 class Bot {
 public:
@@ -20,8 +21,9 @@ public:
     explicit Bot(std::string&& token);
     explicit Bot(const std::string& token);
     ~Bot();
-    void send_message(uint64_t chat_id, std::string_view text);
+    void send_text(uint64_t chat_id, std::string_view text);
     void send_message(uint64_t chat_id,const Message& message);
+    void send_photo(uint64_t chat_id, const Photo& photo);
     std::vector<Update> getUpdates();
 private:
     Bot();

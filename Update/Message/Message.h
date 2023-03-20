@@ -37,7 +37,7 @@ public:
     };
     Message(const Message& other) = delete;
     Message& operator=(const Message& other) = delete;
-    enum class Type{Text};
+    enum class Type{Text, Photo};
     Message(const boost::property_tree::ptree& json);
     template <typename T>
     T get() const{

@@ -34,6 +34,7 @@ vertex_t get_adjacent_name(graph_t& graph, vertex_desc& desc){
     return boost::get(boost::vertex_bundle,graph)[*neighbour];
 }
 
+
 void start(graph_t& graph,Bot& bot, uint64_t id){
     if (not find_vertex(graph,id).has_value()) {
         if (queue.empty()) {
@@ -92,7 +93,7 @@ int main(){
             for (auto &update: updates) {
                 auto message = update.get<Message>();
                 uint64_t id = message.from.id;
-                if (message.entities) {
+                if (message.entities.has_value()) {
                     switch (message.entities->type) {
                         case Message::Entities::Type::bot_command:
                             auto text = message.get<Text>();

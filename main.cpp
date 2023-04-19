@@ -2,10 +2,14 @@
 #include <iostream>
 #include <queue>
 #include <ranges>
+#include <boost/stacktrace.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include "Bot.h"
 #include "Update/Message/Message.h"
-
+void my_terminate_handler (){
+    std::cerr << boost::stacktrace::stacktrace() << "\n";
+    std::abort();
+}
 
 constexpr std::string_view available_command[] = {"/start","/new","/stop"};
 namespace rng = std::ranges;
@@ -23,6 +27,7 @@ std::optional<vertex_desc> find_vertex(const graph_t& graph, vertex_t name){
         vertex_desc desc = *it;
         if (boost::get(boost::vertex_bundle,graph)[desc] == name){
             res = desc;
+
             return res;
         }
     }
@@ -73,56 +78,56 @@ void new_(graph_t& graph,Bot& bot,uint64_t id){
     stop(graph,bot,id);
     start(graph,bot,id);
 }
-
+void execute_command(Bot& bot, const Message& message, graph_t& graph){
+    auto text = message.get<Text>();
+    uint64_t id = message.from.id;
+    if (rng::find(available_command,text) != std::end(available_command)) {
+        if (text == "/start") {
+            start(graph,bot,id);
+        }
+        if (text == "/stop") {
+            stop(graph,bot,id);
+        }
+        if (text == "/new"){
+            new_(graph,bot,id);
+        }
+    } else{
+        bot.send_text(id,"неизвестная команда");
+    }
+}
 int main(){
+    std::set_terminate(&my_terminate_handler);
     std::ifstream fin(".config");
     std::string token;
     uint64_t admin_id;
-    try {
+    if (not fin.is_open()) {
         fin >> token;
         fin >> admin_id;
-    } catch(...) {
-        std::cout << "не найден .config файл";
+    } else {
+        std::cout << "cannot open .config";
+        std::exit(1);
     }
     Bot bot(std::move(token));
     graph_t graph;
     while (true) {
-        try {
-            std::cout << graph.m_edges.size() << "\n";
-            auto updates = bot.getUpdates();
-            for (auto &update: updates) {
-                auto message = update.get<Message>();
-                uint64_t id = message.from.id;
-                if (message.entities.has_value()) {
-                    switch (message.entities->type) {
-                        case Message::Entities::Type::bot_command:
-                            auto text = message.get<Text>();
-                            if (rng::find(available_command,text) != std::end(available_command)) {
-                                if (text == "/start") {
-                                    start(graph,bot,id);
-                                }
-                                if (text == "/stop") {
-                                    stop(graph,bot,id);
-                                }
-                                if (text == "/new"){
-                                    new_(graph,bot,id);
-                                }
-                            } else{
-                                bot.send_text(id,"неизвестная команда");
-                            }
-                            break;
-                    }
+        auto updates = bot.getUpdates();
+        for (auto &update: updates) {
+            auto message = update.get<Message>();
+            uint64_t id = message.from.id;
+            if (message.entities.has_value()) {
+                switch (message.entities->type) {
+                    case Message::Entities::Type::bot_command:
+                        execute_command(bot,message,graph);
+                        break;
+                }
+            } else {
+                std::optional<vertex_desc> desc = find_vertex(graph,id);
+                if (desc.has_value()) {
+                    bot.send_message(get_adjacent_name(graph, *desc), message);
                 } else {
-                    std::optional<vertex_desc> desc = find_vertex(graph,id);
-                    if (desc.has_value()) {
-                        bot.send_message(get_adjacent_name(graph, *desc), message);
-                    } else {
-                        bot.send_text(id, "вы не в диалоге. Введите команду /start для поиска собеседника");
-                    }
+                    bot.send_text(id, "вы не в диалоге. Введите команду /start для поиска собеседника");
                 }
             }
-        } catch(std::exception& ex){
-            bot.send_text(admin_id,ex.what());
         }
     }
 }

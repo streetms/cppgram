@@ -2,14 +2,9 @@
 #include <iostream>
 #include <queue>
 #include <ranges>
-#include <boost/stacktrace.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include "Bot.h"
 #include "Update/Message/Message.h"
-void my_terminate_handler (){
-    std::cerr << boost::stacktrace::stacktrace() << "\n";
-    std::abort();
-}
 
 constexpr std::string_view available_command[] = {"/start","/new","/stop"};
 namespace rng = std::ranges;
@@ -27,7 +22,6 @@ std::optional<vertex_desc> find_vertex(const graph_t& graph, vertex_t name){
         vertex_desc desc = *it;
         if (boost::get(boost::vertex_bundle,graph)[desc] == name){
             res = desc;
-
             return res;
         }
     }
@@ -95,12 +89,12 @@ void execute_command(Bot& bot, const Message& message, graph_t& graph){
         bot.send_text(id,"неизвестная команда");
     }
 }
+
 int main(){
-    std::set_terminate(&my_terminate_handler);
     std::ifstream fin(".config");
     std::string token;
     uint64_t admin_id;
-    if (not fin.is_open()) {
+    if (fin.is_open()) {
         fin >> token;
         fin >> admin_id;
     } else {

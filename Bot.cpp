@@ -21,20 +21,19 @@ Bot::Bot(std::string &&token) : Bot() {
     this->token = std::move(token);
 }
 void Bot::send_text(uint64_t chat_id, std::string_view text) {
-    char request[1024];
-    sprintf(request,"api.telegram.org/bot%s/sendMessage?chat_id=%lu&text=%s",token.data(),chat_id,text.data());
+    std::string request(std::format("api.telegram.org/bot{}/sendMessage?chat_id={}&text={}",token,chat_id,text));
     get(request);
 }
 
 std::vector<Update> Bot::getUpdates() {
-    char request[1024];
+    std::string request;
     std::vector<Update> updates;
     if (last_update_id  == 0) {
-        sprintf(request,"api.telegram.org/bot%s/getUpdates",token.data());
+        request = std::format("api.telegram.org/bot{}/getUpdates",token);
     } else {
-        sprintf(request,"api.telegram.org/bot%s/getUpdates?offset=%lu",token.data(),last_update_id+1);
+        request = std::format("api.telegram.org/bot{}/getUpdates?offset={}",token,last_update_id+1);
     }
-
+    std::cout <<request << "\n";
     ptree json;
     std::stringstream st(get(request).body());
     read_json(st,json);
@@ -95,8 +94,7 @@ void Bot::send_message(uint64_t chat_id,const Message& message) {
 }
 
 void Bot::send_photo(uint64_t chat_id, const Photo &photo) {
-    char request[1024];
-    sprintf(request,"api.telegram.org/bot%s/sendPhoto?chat_id=%lu&photo=%s",token.data(),chat_id,photo.file_id.data());
+    std::string request(std::format("api.telegram.org/bot{}/sendPhoto?chat_id={}&photo={}",token,chat_id,photo.file_id));
     get(request);
 }
 

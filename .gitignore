@@ -26,6 +26,7 @@
 *.a
 *.lib
 
+
 # Executables
 *.exe
 *.out
@@ -33,5 +34,3 @@
 
 .idea
 cmake-build-debug
-cmake-build-debug-clang/
-cmake-build-debug-gcc/
